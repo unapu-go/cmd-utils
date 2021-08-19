@@ -25,7 +25,7 @@ func (typ StdIOType) Get(pth string, defaul ...*os.File) (f *os.File, err error)
 		case "STDERR":
 			return os.Stderr, nil
 		case "_":
-			return os.Open(os.DevNull)
+			return os.OpenFile(os.DevNull, os.O_WRONLY, os.ModeCharDevice)
 		}
 	case StdErr:
 		switch strings.ToUpper(pth) {
@@ -34,14 +34,14 @@ func (typ StdIOType) Get(pth string, defaul ...*os.File) (f *os.File, err error)
 		case "STD", "STDERR":
 			return os.Stderr, nil
 		case "_":
-			return os.Open(os.DevNull)
+			return os.OpenFile(os.DevNull, os.O_WRONLY, os.ModeCharDevice)
 		}
 	case StdIn:
 		switch strings.ToUpper(pth) {
 		case "STD", "STDIN":
 			return os.Stdin, nil
 		case "_":
-			return os.Open(os.DevNull)
+			return os.OpenFile(os.DevNull, os.O_RDONLY, os.ModeCharDevice)
 		}
 	}
 
@@ -65,13 +65,17 @@ func (typ StdIOType) Get(pth string, defaul ...*os.File) (f *os.File, err error)
 				}
 				return
 			} else {
-				pth = os.DevNull
+				switch typ {
+				case StdIn:
+					return os.OpenFile(os.DevNull, os.O_RDONLY, os.ModeCharDevice)
+				case StdOut, StdErr:
+					return os.OpenFile(os.DevNull, os.O_WRONLY, os.ModeCharDevice)
+				}
+				return
 			}
 		} else {
 			return defaul[0], nil
 		}
-	case "DEV_NULL":
-		pth = os.DevNull
 	}
 	var (
 		s    os.FileInfo
