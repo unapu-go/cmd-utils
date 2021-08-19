@@ -16,6 +16,15 @@ const (
 )
 
 func (typ StdIOType) Get(pth string, defaul ...*os.File) (f *os.File, err error) {
+	switch typ {
+	case StdOut, StdErr:
+		switch pth {
+		case "STDOUT":
+			return os.Stdout, nil
+		case "STDERR":
+			return os.Stderr, nil
+		}
+	}
 	var sysDef bool
 	if len(defaul) == 0 {
 		sysDef = true
@@ -31,7 +40,7 @@ func (typ StdIOType) Get(pth string, defaul ...*os.File) (f *os.File, err error)
 				case StdOut:
 					return os.Stdout, nil
 				case StdErr:
-					return  os.Stderr, nil
+					return os.Stderr, nil
 				}
 				return
 			} else {
